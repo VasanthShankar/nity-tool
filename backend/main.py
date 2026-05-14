@@ -70,9 +70,9 @@ def _within_trade_window() -> tuple[bool, str]:
 
 
 @app.post("/snapshot", response_model=SnapshotOut)
-def take_snapshot(
+async def take_snapshot(
     force: bool = Query(False, description="Override the time window filter"),
-    screenshot: Optional[UploadFile] = File(None),
+    screenshot: Optional[UploadFile] = File(default=None),
     db: Session = Depends(get_db),
 ):
     """Capture a fresh market snapshot from Kite. Optionally attach a screenshot."""
@@ -119,8 +119,8 @@ def take_snapshot(
 
     # Screenshot to base64 if provided
     screenshot_b64 = None
-    if screenshot is not None:
-        raw = screenshot.file.read()
+    if screenshot is not None and screenshot.filename:
+        raw = await screenshot.read()
         screenshot_b64 = base64.b64encode(raw).decode("ascii")
 
     snap = Snapshot(
