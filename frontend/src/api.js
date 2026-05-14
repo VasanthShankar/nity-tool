@@ -13,9 +13,14 @@ async function req(path, opts = {}) {
 }
 
 export const api = {
-  takeSnapshot: async (file, force = false) => {
+ takeSnapshot: async (file, force = false) => {
     const form = new FormData();
-    if (file) form.append("screenshot", file);
+    if (file) {
+      form.append("screenshot", file);
+    } else {
+      // Empty placeholder so FastAPI accepts the multipart body
+      form.append("_", "");
+    }
     const r = await fetch(
       `${API_BASE}/snapshot${force ? "?force=true" : ""}`,
       { method: "POST", body: form }
